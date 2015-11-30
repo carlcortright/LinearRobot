@@ -3,12 +3,14 @@ import tkFileDialog
 import linearRobotControl
 import config, debug
 import sys, os, time
-
+import multiprocessing, Queue
+from multiprocessing import Process
 
 class linearRobotInterface:
+	#global variables
 
 	"""
-	Tkinter implementation of the user interface for the Gilroy Lab 
+	Tkinter implementation of the user interface for the Gilroy Lab
 	linear phenotyping robot.
 
 	Author: Carl Cortright- Gilroy Lab, Madison, Wisconsin
@@ -17,7 +19,7 @@ class linearRobotInterface:
 	def __init__(self, master):
 		#default settings
 		master.protocol('WM_DELETE_WINDOW', self.destroy)
-		#useful global variales 
+		#useful global variales
 		self.width = master.winfo_screenwidth()
 		self.height = master.winfo_screenheight()
 		self.master = master
@@ -31,7 +33,7 @@ class linearRobotInterface:
 		master.wm_title("Gilroy Lab Robot Control Interface")
 		master.iconbitmap('plantIcon.ico')
 
-		#generate the user interface with two framed sections, one for the top and one for the bottom. 
+		#generate the user interface with two framed sections, one for the top and one for the bottom.
 		self.makeMenu(master)
 		self.top = Frame(master=master, height=self.height/4, width=self.width/2-20)
 		self.top.pack()
@@ -74,7 +76,7 @@ class linearRobotInterface:
 		time_between_entry.grid(in_=self.bottom, row=7, column=3, sticky="W")
 		start = Button(master=bottom, text="Start Experiment", font=("Helvedica", 16), command=self.start_experiment)
 		start.grid(in_=self.bottom, row=8, column=1)
-		stop = Button(master=bottom, text="Stop Experiment", font=("Helvedica", 16), command=self.stop_experiment)
+		stop = Button(master=bottom, text="Stop Current Process", font=("Helvedica", 16), command=self.stop)
 		stop.grid(row=8, column=2)
 	"""when the user changes the number of plants this method changes the layout of the interface"""
 	def add_plant_spots(self, master, numplants):
@@ -147,7 +149,7 @@ class linearRobotInterface:
 		finally:
 			if debug.debug:
 				config.printConfig()
-			config.saveConfig()
+			config.writeConfig()
 			self.toplevel.destroy()
 	"""Destroys the current top level settings window."""
 	def exitsettings(self):
@@ -192,7 +194,7 @@ class linearRobotInterface:
 		finally:
 			if self.control.debug:
 				config.printConfig()
-			config.saveConfig()
+			config.writeConfig()
 	"""Destroys the toplevel widget containing the camera options."""
 	def exit_camera_settings(self):
 		self.toplevel.destroy()
@@ -214,17 +216,34 @@ class linearRobotInterface:
 		msg.pack()
 	"""runs a test run so that the researcher can see the position of the plants in each picture"""
 	def test_run(self):
+		#calculate half of the length between pictures
+		halfMoveLength = (config.length / config.numPlants) / 2
+		#move the robot
 		self.control.home()
-		halfMoveLength = config.length/(config.numPlants*2)
 		self.control.move(halfMoveLength)
-		time.sleep(5)
-		for plant in range(1, config.numPlants):
-			self.control.move(halfMoveLength*2)
-			time.sleep(5)
-		self.control.home()
+		for num in range(1, config.numPlants):
+			self.control.move(halfMoveLength * 2)
+
 	"""Ends the experiment before the time is up."""
-	def stop_experiment(self):
-		pass
+	def stop(self):
+		self.toplevel = Toplevel()
+		self.toplevel.iconbitmap('plantIcon.ico')
+		self.toplevel.title("Warning!")
+		warningText = "Warning!! Any future data collection will be lost! \n Are you sure you want to continue?"
+		self.warning_label = Label(master=self.toplevel, font=("Helvedica", 16), text=warningText)
+		self.warning_label.grid(row=1,column=1, columnspan=2)
+		self.yes_button = Button(master=self.toplevel, font=("Helvedica", 16), text="Yes", command=self.stopYes)
+		self.yes_button.grid(row=4, column=1)
+		self.no_button = Button(master=self.toplevel, font=("Helvedica", 16), text="No", command=self.toplevel.destroy)
+		self.no_button.grid(row=4, column=2)
+	def stopYes(self):
+		if self.robotProcess.is_alive():
+			self.robotProcess.terminate()
+			if debug.debug == True:
+				print "Process Terminated."
+		else:
+			if debug.debug == True:
+				print "No process running, nothing to terminate."
 	"""Starts the experiment once everything is configured."""
 	def start_experiment(self):
 		if self.directory == None or self.directory == "":
@@ -236,10 +255,25 @@ class linearRobotInterface:
 			return
 		else:
 			pass
+	def makeRun(self):
+		self.control.home()
+		halfMoveLength = config.length/(config.numPlants*2)
+		self.control.move(halfMoveLength)
+		self.takePicture()
+		time.sleep(2)
+		for plant in range(1, config.numPlants):
+			self.control.move(halfMoveLength*2)
+			self.takePicture()
+		self.control.home()
+	def takePicture(self):
+		print "Click!"
+		time.sleep(2)
 	def destroy(self):
 		self.control.quit()
 		self.frame.quit()
-#Initialize the frame. 
+
+
+#Initialize the frame.
 root = Tk()
 robot = linearRobotInterface(root)
 root.mainloop()
