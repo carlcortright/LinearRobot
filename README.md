@@ -1,7 +1,7 @@
 # LinearRobot
 Gilroy Lab - University of Wisconsin Madison.
 
-This robot is designed to be an cheap, agile, high-throughput platform for researchers to be able to automatically phenotype plants. n 
+This robot is designed to be an cheap, agile, high-throughput platform for researchers to be able to automatically phenotype plants. 
 
 ## Building and Contributing
 
@@ -19,7 +19,7 @@ The software consists of firmware running on an Arduino Uno with a host computer
 
 The firmware is written in C++ and the GUI is written in python using the Tkinter library. 
 
-Where we need contribution:
+### Where we need contribution
 -Python multithreading to prevent the user interface from freezing while the robot is moving
 -Interfacing the cannon API with the camera (C#)
 
