@@ -26,5 +26,12 @@ The firmware is written in C++ and the GUI is written in python using the Tkinte
 
 More information on both the GUI and firmware is in the readme's for those folders respectively. 
 
+Render of the robot itself:
+
+![alt tag](https://carlcortright.s3.amazonaws.com/media/2015/12/15/852bb33b-f8a6-4e7f-9567-a5cc55f64f39.jpg)
+
+Systems Diagram:
+
+![alt tag](https://carlcortright.s3.amazonaws.com/media/2015/12/15/LinearRobotSystems.png)
 
 
