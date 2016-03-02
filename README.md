@@ -21,6 +21,7 @@ The firmware is written in C++ and the GUI is written in python using the Tkinte
 
 ### Where we need contribution
 -Python multithreading to prevent the user interface from freezing while the robot is moving
+
 -Interfacing the cannon API with the camera (C#)
 
 More information on both the GUI and firmware is in the readme's for those folders respectively. 
