@@ -1,3 +1,6 @@
 # LinearRobot
 
-Linear Robot design files for Gilroy Lab - UW Madison. 
+Linear Robot design files for Gilroy Lab - University of Wisconsin Madison.
+
+
+
